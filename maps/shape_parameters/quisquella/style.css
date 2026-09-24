@@ -1,0 +1,706 @@
+/* Visual language lifted from visor/city_risk_visor/risk_viewer/frontend/src/style.css
+   (dark glass panels, amber accent). Trimmed to only what this frontend-only
+   template actually uses; keep the token names the same so any panel copied
+   in later from the visor drops in without a rename. */
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 21px;
+
+  --bg: #eef1f3;
+  --panel: rgba(255, 255, 255, 0.72);
+  --panel-solid: #ffffff;
+  --border: rgba(20, 24, 28, 0.12);
+  --border-strong: rgba(20, 24, 28, 0.22);
+  --glass-border: rgba(20, 24, 28, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --text: #14181d;
+  --muted: #4b5459;
+  --faint: #6b7479;
+
+  --amber: #e2a33f;
+  --amber-soft: rgba(226, 163, 63, 0.14);
+  --amber-ink: #f0be6f;
+  --amber-ink-dark: #2a1c04;
+  --focus: #6db4ff;
+}
+
+/* ?theme=dark -- everything above is themed off these CSS vars, so
+   redefining them here is enough to reskin every panel/button. */
+body.theme-dark {
+  color-scheme: dark;
+  --bg: #0a0c0f;
+  --panel: rgba(22, 27, 33, 0.48);
+  --panel-solid: #14181d;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-highlight: rgba(255, 255, 255, 0.07);
+  --text: #edf1f3;
+  --muted: #9aa5ac;
+  --faint: #7c868d;
+  --amber: #e2a33f;
+}
+
+body.theme-dark .maplibregl-ctrl-attrib {
+  background: rgba(20, 24, 28, 0.6) !important;
+}
+
+body.theme-dark .maplibregl-ctrl-attrib a {
+  color: #edf1f3 !important;
+}
+
+body.theme-dark .legend-swatch {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* This app is only ever really viewed embedded in the deck's fixed
+   1280x644 map iframe (theme/ecee2026.css's section.map > iframe box), not
+   as a full standalone desktop tab -- every panel/font size here is tuned
+   in fixed CSS px against a realistic ~1600px-wide desktop context (also
+   what scripts/capture_map_gifs.py's static JPEG captures use), so at the
+   narrower 1280 they'd otherwise come out proportionally bigger live than
+   in those captures. zoom (not transform, so vh/vw stay consistent) scales
+   the whole page back down to match once the viewport is that narrow.
+   1280 / 0.8 = 1600, matching the capture width exactly. */
+@media (max-width: 1300px) {
+  html {
+    zoom: 0.8;
+  }
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- glass panel (shared: #controls, #building-panel, #settings-panel) ---------- */
+.glass-panel {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 45%), var(--panel);
+  backdrop-filter: blur(26px) saturate(170%);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+/* The panel itself is never fully collapsed to an icon any more -- title +
+   legend must stay visible at all times, video mode included. */
+#controls {
+  position: absolute;
+  top: 135px;
+  left: 16px;
+  z-index: 10;
+  width: fit-content;
+  max-width: 300px;
+  min-width: 220px;
+  max-height: calc((100vh - 116px) * 1.25);
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+#controls-fields.hidden {
+  display: none;
+}
+
+#controls-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: var(--faint);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+#controls-toggle:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+#controls-toggle.collapsed {
+  transform: rotate(180deg);
+}
+
+#controls h1 {
+  font-size: 1.3rem;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+#controls label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--faint);
+  margin-top: 12px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.hint {
+  margin: 18px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--faint);
+}
+
+/* ---------- icon buttons, top-right row ---------- */
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 16px;
+  z-index: 11;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-button svg {
+  width: 26px;
+  height: 26px;
+}
+
+.icon-button:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.icon-button.active {
+  background: var(--amber);
+  color: var(--amber-ink-dark);
+  border-color: transparent;
+}
+
+#reorient-toggle {
+  right: 280px;
+}
+
+#resume-showcase-toggle {
+  right: 214px;
+}
+
+#view-3d-toggle {
+  right: 148px;
+}
+
+#charts-toggle {
+  right: 82px;
+}
+
+#settings-toggle {
+  right: 16px;
+}
+
+#settings-panel {
+  position: absolute;
+  top: 78px;
+  right: 16px;
+  z-index: 12;
+  width: 400px;
+  max-height: calc(100vh - 94px);
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+#settings-panel h2 {
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.panel-actions button {
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  line-height: 1;
+  font-size: 1.8rem;
+  color: var(--faint);
+}
+
+.panel-actions button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* ---------- custom dropdown (Color by) ---------- */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border-strong);
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-toggle:hover {
+  border-color: var(--faint);
+}
+
+.dropdown-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-caret {
+  flex-shrink: 0;
+  color: var(--faint);
+  transition: transform 0.15s ease;
+}
+
+.dropdown[data-open] .dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.dropdown[data-open] .dropdown-toggle {
+  border-color: var(--amber);
+}
+
+.dropdown-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--panel-solid);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.dropdown-list[hidden] {
+  display: none;
+}
+
+.dropdown-list li {
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.dropdown-list li:hover,
+.dropdown-list li:focus-visible {
+  background: rgba(255, 255, 255, 0.07);
+  outline: none;
+}
+
+.dropdown-list li.selected {
+  color: var(--amber);
+  font-weight: 600;
+  background: var(--amber-soft);
+}
+
+/* ---------- legend ---------- */
+#legend {
+  margin-top: 20px;
+}
+
+#legend h2 {
+  font-size: 1rem;
+  margin: 0 0 10px;
+  color: var(--text);
+}
+
+.legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.legend-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  flex-shrink: 0;
+}
+
+/* Extra legend for a checked raster whose colors don't match the main
+   "Color by" legend above it (GBA/DSM-DTM/DTM/DSM) -- a gradient bar with
+   low/high labels instead of a swatch list. */
+.raster-legend {
+  margin-top: 14px;
+}
+
+.raster-legend h3 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.raster-legend-bar {
+  height: 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.raster-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--faint);
+}
+
+/* ---------- tooltip / building popup ---------- */
+.deck-tooltip {
+  background: rgba(20, 24, 28, 0.95) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  font-size: 1rem !important;
+  max-width: 320px;
+}
+
+/* ---------- charts panel (right side, persistent) ---------- */
+/* No `bottom` anchor -- unlike the roof map's charts-panel (2 charts, tall
+   enough to want the full column height), this one chart is short, and
+   anchoring both top+bottom stretched the glass-panel background itself far
+   past the actual chart card, reading as an oversized empty gray box. */
+#charts-panel {
+  position: absolute;
+  top: 135px;
+  right: 16px;
+  z-index: 10;
+  width: 340px;
+  max-height: calc((100vh - 116px) * 1.25);
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 22px;
+}
+
+#charts-panel-content h2 {
+  font-size: 1.05rem;
+  margin: 0 0 16px;
+  color: var(--text);
+}
+
+.chart-card {
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  width: 100%;
+}
+
+.chart-card h3 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.chart-card svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-axis-label {
+  font-size: 0.68rem;
+  fill: var(--muted);
+}
+
+.chart-bar-label {
+  font-size: 0.68rem;
+  fill: var(--text);
+}
+
+.norm-gradient {
+  height: 14px;
+  border-radius: 4px;
+  margin-top: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.norm-gradient-ticks {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+#norm-chart-caption {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* building popup: bottom drawer (charts-panel owns the right side here) */
+#building-panel {
+  position: absolute;
+  left: 16px;
+  right: 372px;
+  bottom: 16px;
+  max-height: 46vh;
+  z-index: 13;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+#building-panel-content h2 {
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+#building-panel-content .building-subtitle {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.building-summary {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.building-summary th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 3px 10px 3px 0;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.building-summary td {
+  text-align: left;
+  padding: 3px 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.building-summary tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.building-summary th.non-compliant,
+.building-summary td.non-compliant {
+  color: #e2938a;
+}
+
+.error {
+  color: #fca5a5;
+  font-size: 1rem;
+  margin-top: 16px;
+}
+
+/* ---------- layer controls (checkbox + opacity slider per raster) ----------
+   Each row stacks the checkbox+label above its slider (not side by side) so
+   long labels never get cut off at the panel's fixed width. */
+.layer-control-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.layer-control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 3px 0;
+}
+
+.layer-control-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.layer-control-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--amber);
+}
+
+.layer-control-label {
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.layer-control-row input[type="range"] {
+  width: calc(100% - 28px);
+  margin-left: 28px;
+  accent-color: var(--amber);
+}
+
+/* ---------- collapsible section header (Layers): shows just the legend by
+   default (also true during video mode); click the icon to reveal the full
+   checkbox/slider list too. ---------- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+.section-header label,
+.section-header h2 {
+  margin: 0 !important;
+}
+
+#charts-panel .section-header {
+  margin-top: 0;
+}
+
+.section-toggle {
+  border: 1px solid var(--border-strong);
+  background: var(--panel-solid);
+  color: var(--muted);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.section-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+
+.section-toggle:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.section-toggle.active {
+  color: var(--amber-ink);
+  border-color: var(--amber);
+}
+
+#layer-controls.hidden {
+  display: none;
+}
+
+/* Small icon button pinned at the top-left of the panel's title row
+   (legend toggle) -- same visual weight as .section-toggle, just placed
+   inline instead of next to a text label (no "Legend" title anywhere: when
+   hidden, only this icon remains, nothing else). */
+.panel-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.icon-toggle-small {
+  border: 1px solid var(--border-strong);
+  background: var(--panel-solid);
+  color: var(--muted);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.icon-toggle-small svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-toggle-small:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.icon-toggle-small.active {
+  color: var(--amber-ink);
+  border-color: var(--amber);
+}

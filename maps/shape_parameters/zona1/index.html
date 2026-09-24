@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sevilla Pilot Regions – Shape Parameters</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="map"></div>
+
+      <button id="reorient-toggle" type="button" class="icon-button" aria-label="Reset map orientation" title="Reset map orientation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <polygon points="12,5 14,12 12,19 10,12" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+      <button id="resume-showcase-toggle" type="button" class="icon-button" aria-label="Resume auto tour" title="Resume auto tour">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon points="6,4 20,12 6,20" />
+        </svg>
+      </button>
+      <button id="view-3d-toggle" type="button" class="icon-button active" aria-label="Toggle 3D buildings" title="Toggle 3D buildings">3D</button>
+            <button id="charts-toggle" type="button" class="icon-button active" aria-label="Toggle plots" title="Toggle plots">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="19" x2="5" y2="11" />
+          <line x1="12" y1="19" x2="12" y2="5" />
+          <line x1="19" y1="19" x2="19" y2="14" />
+        </svg>
+      </button>
+      <button id="settings-toggle" type="button" class="icon-button" aria-label="Settings" title="Settings (placeholder)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6" />
+          <circle cx="9" cy="6" r="2" fill="currentColor" stroke="none" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <circle cx="15" cy="12" r="2" fill="currentColor" stroke="none" />
+          <line x1="4" y1="18" x2="20" y2="18" />
+          <circle cx="7" cy="18" r="2" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+
+      <aside id="settings-panel" class="glass-panel hidden">
+        <div class="panel-actions">
+          <button id="settings-panel-close" aria-label="Close">&times;</button>
+        </div>
+        <div id="settings-panel-content">
+          <h2>Settings</h2>
+          <p class="hint">More controls coming later.</p>
+        </div>
+      </aside>
+
+      <!-- Left control panel: dataset, color-by (15 shape-irregularity
+           metrics -- EC8/NTC-23/GNDT-II/ASCE7/CSCR-2010/slenderness, see
+           main.js's SHAPE_ATTRIBUTES), and the legend (5 percentile bins,
+           p10-p90, recomputed per attribute+dataset). -->
+      <aside id="controls" class="glass-panel">
+        <button id="controls-toggle" type="button" class="collapsed" aria-label="Show controls" title="Show controls">⟨</button>
+        <div id="controls-body">
+          <div class="panel-title-row">
+            <button id="legend-toggle" class="icon-toggle-small active" type="button" aria-label="Hide legend" title="Toggle legend">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="5" height="5" rx="1" fill="currentColor" stroke="none" /><rect x="3" y="14" width="5" height="5" rx="1" fill="currentColor" stroke="none" />
+                <line x1="11" y1="7.5" x2="21" y2="7.5" /><line x1="11" y1="16.5" x2="21" y2="16.5" />
+              </svg>
+            </button>
+            <div>
+              <h1 class="subtitle">Zona 1</h1>
+            </div>
+          </div>
+
+          <div id="controls-fields" class="hidden">
+            <label>Dataset</label>
+            <div id="dataset-select"></div>
+
+            <label>Color by</label>
+            <div id="attribute-select"></div>
+          </div>
+
+          <div id="legend"></div>
+
+        </div>
+      </aside>
+
+      <!-- Right side panel: norm-exceedance chart for the currently-shown
+           attribute (good -> bad, % of buildings that value or worse), plus
+           the shape-index breakdown, always shown below it. -->
+      <aside id="charts-panel" class="glass-panel">
+        <div id="charts-panel-content">
+          <div id="charts-body">
+            <div class="chart-card" id="norm-chart-card">
+              <h3 id="chart-title">Buildings worse than the code limit</h3>
+              <div id="norm-chart"></div>
+              <p class="hint" id="norm-chart-caption"></p>
+            </div>
+            <div class="chart-card">
+              <h3>Shape index</h3>
+              <div id="shape-index-chart"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <aside id="building-panel" class="glass-panel hidden">
+        <div class="panel-actions">
+          <button id="building-panel-close" aria-label="Close">&times;</button>
+        </div>
+        <div id="building-panel-content"></div>
+      </aside>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/deck.gl@9/dist.min.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
