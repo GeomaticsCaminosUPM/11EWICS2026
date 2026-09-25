@@ -61,8 +61,8 @@ const ARROW_KIND_DASH = {
 // footprint_attributes.notebook_utils.ARROW_STYLE's own caps per kind.
 const ARROW_KIND_CAPS = { L1: "arrow", L2: "arrow", a1: "bar", a2: "bar", b: "bar", c: "bar" };
 const ARROW_KIND_LABELS = {
-  L1: "L1 (main length)",
-  L2: "L2 (main width)",
+  L1: "L1",
+  L2: "L2",
   a1: "a1 (setback width)",
   a2: "a2 (setback width)",
   b: "b (setback depth)",
@@ -91,6 +91,7 @@ const state = {
   selectedBuildingId: null,
   showcaseActive: false,
   arrowsData: null,
+  arrowKindActive: Object.fromEntries(ARROW_KIND_ORDER.map((k) => [k, true])),
 };
 
 const URL_PARAMS = new URLSearchParams(location.search);
@@ -265,8 +266,9 @@ function renderLayer() {
 
   const layers = [buildings];
   if (state.arrowsData) {
-    const solidFeatures = state.arrowsData.features.filter((f) => !ARROW_KIND_DASH[f.properties?.kind]);
-    const dashedFeatures = state.arrowsData.features.filter((f) => ARROW_KIND_DASH[f.properties?.kind]);
+    const activeFeatures = state.arrowsData.features.filter((f) => state.arrowKindActive[f.properties?.kind]);
+    const solidFeatures = activeFeatures.filter((f) => !ARROW_KIND_DASH[f.properties?.kind]);
+    const dashedFeatures = activeFeatures.filter((f) => ARROW_KIND_DASH[f.properties?.kind]);
     layers.push(
       // L1/L2: solid, thicker.
       new GeoJsonLayer({
@@ -343,12 +345,20 @@ function renderLegend() {
   list.className = "legend-list";
   for (const key of ARROW_KIND_ORDER) {
     const item = document.createElement("li");
+    item.className = "overlay-checkbox-row";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = state.arrowKindActive[key];
+    checkbox.addEventListener("change", () => {
+      state.arrowKindActive[key] = checkbox.checked;
+      renderLayer();
+    });
     const icon = document.createElement("span");
     icon.className = "legend-line";
     icon.innerHTML = legendIconSvg(key);
     const label = document.createElement("span");
     label.textContent = ARROW_KIND_LABELS[key];
-    item.append(icon, label);
+    item.append(checkbox, icon, label);
     list.appendChild(item);
   }
   container.appendChild(list);

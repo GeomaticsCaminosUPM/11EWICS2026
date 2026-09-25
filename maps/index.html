@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SevillaConference – Interactive Maps</title>
+    <style>
+      :root {
+        --bg: #eef1f3;
+        --panel-solid: #ffffff;
+        --glass-border: rgba(20, 24, 28, 0.1);
+        --text: #14181d;
+        --text-muted: #5a6472;
+        --amber: #e2a33f;
+        --amber-soft: rgba(226, 163, 63, 0.14);
+        --amber-ink-dark: #2a1c04;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0a0c0f;
+          --panel-solid: #14181d;
+          --glass-border: rgba(255, 255, 255, 0.16);
+          --text: #edf1f3;
+          --text-muted: #9aa5b1;
+          --amber-soft: rgba(226, 163, 63, 0.16);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .page {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+      h1 {
+        font-size: 1.9rem;
+        margin: 0 0 6px;
+      }
+      .intro {
+        color: var(--text-muted);
+        font-size: 1rem;
+        max-width: 720px;
+        margin: 0 0 40px;
+        line-height: 1.5;
+      }
+      .intro code {
+        background: var(--amber-soft);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      section {
+        margin-bottom: 44px;
+      }
+      section h2 {
+        font-size: 1.3rem;
+        margin: 0 0 4px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      section .desc {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        margin: 0 0 18px;
+        max-width: 680px;
+        line-height: 1.5;
+      }
+      .modes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+      }
+      .mode-card {
+        background: var(--panel-solid);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        padding: 18px 20px;
+      }
+      .mode-card h3 {
+        margin: 0 0 4px;
+        font-size: 1.02rem;
+      }
+      .mode-card .mode-desc {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.45;
+        margin: 0 0 14px;
+      }
+      .mode-card a.primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--amber);
+        color: var(--amber-ink-dark);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.88rem;
+      }
+      .mode-card a.primary:hover { filter: brightness(1.06); }
+      .cities {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .cities span.label {
+        width: 100%;
+        color: var(--text-muted);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 2px;
+      }
+      .cities a {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.82rem;
+        padding: 5px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--glass-border);
+      }
+      .cities a:hover { border-color: var(--amber); color: var(--amber); }
+      footer {
+        margin-top: 60px;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>SevillaConference · Interactive Maps</h1>
+      <p class="intro">
+        Every map cycles through all three pilot regions in video mode
+        (<code>Mata Redonda → Quisquella → Zona 1</code>, every 10s) unless
+        you open a city-pinned link below, which locks video mode to that
+        one city. All maps share the same underlying pilot-region data.
+      </p>
+
+      <section>
+        <h2>Shape parameters</h2>
+        <p class="desc">
+          3-D map colored by the 15 seismic-code shape/plan-irregularity
+          metrics and the shape index; video mode cycles the coloring
+          attribute every 10s, then moves to the next city.
+        </p>
+        <div class="modes">
+          <div class="mode-card">
+            <h3>Shape parameters</h3>
+            <p class="mode-desc">All three cities, cycling.</p>
+            <a class="primary" href="shape_parameters/">Open map →</a>
+            <div class="cities">
+              <span class="label">Pinned to one city</span>
+              <a href="shape_parameters/mataredonda/">Mata Redonda</a>
+              <a href="shape_parameters/quisquella/">Quisquella</a>
+              <a href="shape_parameters/zona1/">Zona 1</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Relative position</h2>
+        <p class="desc">
+          Each building classified as isolated / lateral / corner / confined
+          / torque by contact with its neighbors.
+        </p>
+        <div class="modes">
+          <div class="mode-card">
+            <h3>3D orbit</h3>
+            <p class="mode-desc">Extruded 3D view, inclined orbiting camera, never top-down.</p>
+            <a class="primary" href="relative_position/3d/">Open map →</a>
+            <div class="cities">
+              <span class="label">Pinned to one city</span>
+              <a href="relative_position/3d/mataredonda/">Mata Redonda</a>
+              <a href="relative_position/3d/quisquella/">Quisquella</a>
+              <a href="relative_position/3d/zona1/">Zona 1</a>
+            </div>
+          </div>
+          <div class="mode-card">
+            <h3>Force arrows (2D)</h3>
+            <p class="mode-desc">Flat 2D view, contact-force arrows on by default (resultant + per-wall).</p>
+            <a class="primary" href="relative_position/arrows/">Open map →</a>
+            <div class="cities">
+              <span class="label">Pinned to one city</span>
+              <a href="relative_position/arrows/mataredonda/">Mata Redonda</a>
+              <a href="relative_position/arrows/quisquella/">Quisquella</a>
+              <a href="relative_position/arrows/zona1/">Zona 1</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Building sizes</h2>
+        <p class="desc">
+          L1/L2/a1/a2/b/c dimension arrows on every footprint, flat 2D view.
+        </p>
+        <div class="modes">
+          <div class="mode-card">
+            <h3>Bounding box</h3>
+            <p class="mode-desc">Lengths measured from the minimum rotated bounding box.</p>
+            <a class="primary" href="building_sizes/bbox/">Open map →</a>
+            <div class="cities">
+              <span class="label">Pinned to one city</span>
+              <a href="building_sizes/bbox/mataredonda/">Mata Redonda</a>
+              <a href="building_sizes/bbox/quisquella/">Quisquella</a>
+              <a href="building_sizes/bbox/zona1/">Zona 1</a>
+            </div>
+          </div>
+          <div class="mode-card">
+            <h3>Inertia</h3>
+            <p class="mode-desc">Same six lengths, measured along the principal axes of inertia instead.</p>
+            <a class="primary" href="building_sizes/inertia/">Open map →</a>
+            <div class="cities">
+              <span class="label">Pinned to one city</span>
+              <a href="building_sizes/inertia/mataredonda/">Mata Redonda</a>
+              <a href="building_sizes/inertia/quisquella/">Quisquella</a>
+              <a href="building_sizes/inertia/zona1/">Zona 1</a>
+            </div>
+          </div>
+          <div class="mode-card">
+            <h3>Comparison</h3>
+            <p class="mode-desc">L1/L2 only: bounding box (red, solid) vs. inertia (blue, dotted) overlaid.</p>
+            <a class="primary" href="building_sizes/comparison/">Open map →</a>
+            <div class="cities">
+              <span class="label">Pinned to one city</span>
+              <a href="building_sizes/comparison/mataredonda/">Mata Redonda</a>
+              <a href="building_sizes/comparison/quisquella/">Quisquella</a>
+              <a href="building_sizes/comparison/zona1/">Zona 1</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        Served from <code>SevillaConference/maps/</code> — city slugs in
+        pinned URLs are <code>zona1</code>, <code>quisquella</code>,
+        <code>mataredonda</code> (no underscores).
+      </footer>
+    </div>
+  </body>
+</html>

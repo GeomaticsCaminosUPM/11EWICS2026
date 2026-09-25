@@ -8,6 +8,7 @@
 // data/shape_parameters/prepare_shape_data.py, which writes this map's data
 // too.
 const { GeoJsonLayer } = deck;
+const { ScatterplotLayer } = deck;
 const { MapboxOverlay } = deck;
 const { PathStyleExtension } = deck;
 
@@ -81,7 +82,7 @@ const state = {
   is3D: true,
   selectedBuildingId: null,
   showcaseActive: false,
-  forceArrowsActive: false,
+  forceArrowsShow: { resultant: false, edge: false },
   forceArrowsData: null,
 };
 
@@ -235,20 +236,22 @@ function renderLayer() {
   });
 
   const layers = [buildings];
-  if (state.forceArrowsActive && state.forceArrowsData) {
+  if ((state.forceArrowsShow.resultant || state.forceArrowsShow.edge) && state.forceArrowsData) {
     const byPart = (kind, part) =>
       state.forceArrowsData.features.filter((f) => f.properties?.kind === kind && f.properties?.part === part);
-    const edgeShaftFeatures = byPart("contact_force_edge", "shaft");
-    const edgeHeadFeatures = byPart("contact_force_edge", "head");
-    const resultantShaftFeatures = byPart("contact_force_resultant", "shaft");
-    const resultantHeadFeatures = byPart("contact_force_resultant", "head");
     // Arrowheads are filled triangle polygons (built in data/prepare_data.py
     // from arrow_gdf's own barb endpoints), not two thin diverging strokes
     // -- a solid shape stays recognizably triangular at any zoom, where two
     // parallel hairlines blur into a formless smudge once the whole arrow
     // is only a few screen pixels long (exactly the "look bad at low zoom"
     // failure mode a stroked head has).
-    const headLayer = (id, features, color) =>
+    // A near-cancelling resultant (a "confined" building's whole point) can
+    // have a genuinely tiny magnitude -- its arrowhead polygon then shrinks
+    // to sub-pixel at any zoom, not just when zoomed out. Anchor a small
+    // fixed-screen-size dot at the tip (ScatterplotLayer's radiusMinPixels)
+    // alongside the polygon, so the tip always reads as a clear point the
+    // same way the individual per-wall arrowheads do.
+    const headLayer = (id, features, color, dotMinPixels) => [
       new GeoJsonLayer({
         id,
         data: { type: "FeatureCollection", features },
@@ -261,45 +264,67 @@ function renderLayer() {
         lineWidthUnits: "pixels",
         lineWidthMinPixels: 1,
         lineWidthMaxPixels: 1.5,
-      });
-    layers.push(
-      // Individual per-wall contact force, shaft: thin, dotted.
-      new GeoJsonLayer({
-        id: `overlay-force-arrows-edge-shaft-${state.datasetId}`,
-        data: { type: "FeatureCollection", features: edgeShaftFeatures },
-        filled: false,
-        stroked: true,
-        pickable: false,
-        extruded: false,
-        getLineColor: [...hexToRgb(FORCE_ARROWS_COLOR), 200],
-        getLineWidth: FORCE_ARROWS_EDGE_WIDTH,
-        lineWidthUnits: "meters",
-        lineWidthMinPixels: 1,
-        lineWidthMaxPixels: FORCE_ARROWS_EDGE_WIDTH,
-        extensions: [new PathStyleExtension({ dash: true })],
-        getDashArray: [2, 1.4],
-        dashJustified: true,
       }),
-      headLayer(`overlay-force-arrows-edge-head-${state.datasetId}`, edgeHeadFeatures, [...hexToRgb(FORCE_ARROWS_COLOR), 200]),
-      // Net resultant force per building: thicker, solid, black. World-unit
-      // (not pixel-unit) width so it thins out at low zoom instead of
-      // staying a fixed pixel thickness on an ever-shorter-looking line
-      // (which is what made it look like a blob when zoomed out).
-      new GeoJsonLayer({
-        id: `overlay-force-arrows-resultant-shaft-${state.datasetId}`,
-        data: { type: "FeatureCollection", features: resultantShaftFeatures },
-        filled: false,
-        stroked: true,
+      new ScatterplotLayer({
+        id: `${id}-dot`,
+        data: features,
         pickable: false,
-        extruded: false,
-        getLineColor: [...hexToRgb(FORCE_ARROWS_COLOR), 255],
-        getLineWidth: FORCE_ARROWS_RESULTANT_WIDTH,
-        lineWidthUnits: "meters",
-        lineWidthMinPixels: 1,
-        lineWidthMaxPixels: FORCE_ARROWS_RESULTANT_WIDTH,
+        getPosition: (f) => f.geometry.coordinates[0][0],
+        getFillColor: color,
+        getRadius: 1,
+        radiusUnits: "pixels",
+        radiusMinPixels: dotMinPixels,
+        radiusMaxPixels: dotMinPixels,
       }),
-      headLayer(`overlay-force-arrows-resultant-head-${state.datasetId}`, resultantHeadFeatures, [...hexToRgb(FORCE_ARROWS_COLOR), 255]),
-    );
+    ];
+    if (state.forceArrowsShow.edge) {
+      const edgeShaftFeatures = byPart("contact_force_edge", "shaft");
+      const edgeHeadFeatures = byPart("contact_force_edge", "head");
+      layers.push(
+        // Individual per-wall contact force, shaft: thin, dotted.
+        new GeoJsonLayer({
+          id: `overlay-force-arrows-edge-shaft-${state.datasetId}`,
+          data: { type: "FeatureCollection", features: edgeShaftFeatures },
+          filled: false,
+          stroked: true,
+          pickable: false,
+          extruded: false,
+          getLineColor: [...hexToRgb(FORCE_ARROWS_COLOR), 200],
+          getLineWidth: FORCE_ARROWS_EDGE_WIDTH,
+          lineWidthUnits: "meters",
+          lineWidthMinPixels: 1,
+          lineWidthMaxPixels: FORCE_ARROWS_EDGE_WIDTH,
+          extensions: [new PathStyleExtension({ dash: true })],
+          getDashArray: [2, 1.4],
+          dashJustified: true,
+        }),
+        ...headLayer(`overlay-force-arrows-edge-head-${state.datasetId}`, edgeHeadFeatures, [...hexToRgb(FORCE_ARROWS_COLOR), 200], 3),
+      );
+    }
+    if (state.forceArrowsShow.resultant) {
+      const resultantShaftFeatures = byPart("contact_force_resultant", "shaft");
+      const resultantHeadFeatures = byPart("contact_force_resultant", "head");
+      layers.push(
+        // Net resultant force per building: thicker, solid, black. World-unit
+        // (not pixel-unit) width so it thins out at low zoom instead of
+        // staying a fixed pixel thickness on an ever-shorter-looking line
+        // (which is what made it look like a blob when zoomed out).
+        new GeoJsonLayer({
+          id: `overlay-force-arrows-resultant-shaft-${state.datasetId}`,
+          data: { type: "FeatureCollection", features: resultantShaftFeatures },
+          filled: false,
+          stroked: true,
+          pickable: false,
+          extruded: false,
+          getLineColor: [...hexToRgb(FORCE_ARROWS_COLOR), 255],
+          getLineWidth: FORCE_ARROWS_RESULTANT_WIDTH,
+          lineWidthUnits: "meters",
+          lineWidthMinPixels: 1,
+          lineWidthMaxPixels: FORCE_ARROWS_RESULTANT_WIDTH,
+        }),
+        ...headLayer(`overlay-force-arrows-resultant-head-${state.datasetId}`, resultantHeadFeatures, [...hexToRgb(FORCE_ARROWS_COLOR), 255], 4),
+      );
+    }
   }
   overlay.setProps({ layers, getTooltip: buildingTooltip });
 }
@@ -312,7 +337,7 @@ function renderLayer() {
 // what's really drawn: a thick solid arrow for the resultant, a thicker
 // dotted arrow for each individual wall's force.
 const FORCE_ARROW_LEGEND = [
-  { key: "resultant", label: "Resultant force (net, per building)", width: FORCE_ARROWS_RESULTANT_WIDTH, dash: null },
+  { key: "resultant", label: "Resultant force", width: FORCE_ARROWS_RESULTANT_WIDTH, dash: null },
   { key: "edge", label: "Individual wall force", width: FORCE_ARROWS_EDGE_WIDTH, dash: [2, 1.4] },
 ];
 const LEGEND_ICON_WIDTH = 44;
@@ -356,7 +381,7 @@ function renderLegend() {
   }
   container.appendChild(list);
 
-  if (state.forceArrowsActive) {
+  if (state.forceArrowsShow.resultant || state.forceArrowsShow.edge) {
     const forceHeading = document.createElement("h2");
     forceHeading.style.marginTop = "14px";
     forceHeading.textContent = "Force arrows";
@@ -365,6 +390,7 @@ function renderLegend() {
     const forceList = document.createElement("ul");
     forceList.className = "legend-list";
     for (const entry of FORCE_ARROW_LEGEND) {
+      if (!state.forceArrowsShow[entry.key]) continue;
       const item = document.createElement("li");
       const icon = document.createElement("span");
       icon.className = "legend-line";
@@ -615,10 +641,9 @@ function registerUserInteraction() {
 });
 map.on("click", () => registerUserInteraction());
 
-function setForceArrows(active) {
-  state.forceArrowsActive = active;
-  document.getElementById("force-arrows-toggle")?.classList.toggle("active", active);
-  const checkbox = document.getElementById("force-arrows-checkbox");
+function setForceArrowsKind(kind, active) {
+  state.forceArrowsShow[kind] = active;
+  const checkbox = document.getElementById(`force-arrows-${kind}-checkbox`);
   if (checkbox) checkbox.checked = active;
   renderLayer();
   renderLegend();
@@ -680,8 +705,12 @@ async function bootstrap() {
     document.getElementById("settings-panel").classList.add("hidden");
   });
   document.getElementById("building-panel-close").addEventListener("click", closeBuildingPanel);
-  document.getElementById("force-arrows-checkbox")?.addEventListener("change", (event) => {
-    setForceArrows(event.target.checked);
+  document.getElementById("force-arrows-resultant-checkbox")?.addEventListener("change", (event) => {
+    setForceArrowsKind("resultant", event.target.checked);
+    registerUserInteraction();
+  });
+  document.getElementById("force-arrows-edge-checkbox")?.addEventListener("change", (event) => {
+    setForceArrowsKind("edge", event.target.checked);
     registerUserInteraction();
   });
 

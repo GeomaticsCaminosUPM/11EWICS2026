@@ -40,14 +40,14 @@ function updateTitle(datasetId) {
 const ARROW_KIND_COLORS = {
   L1: "#c0392b",
   L2: "#c0392b",
-  L1_inertia: "#4299e1",
-  L2_inertia: "#4299e1",
+  L1_inertia: "#63b3ed",
+  L2_inertia: "#63b3ed",
 };
 const ARROW_KIND_WIDTHS = {
   L1: 4,
   L2: 4,
-  L1_inertia: 4,
-  L2_inertia: 4,
+  L1_inertia: 6,
+  L2_inertia: 6,
 };
 // [dash length, gap length] in line-width units; PathStyleExtension leaves
 // a kind out of this map undashed (solid) -- bbox L1/L2 stay solid, inertia
@@ -59,10 +59,10 @@ const ARROW_KIND_DASH = {
 // Both bbox and inertia L1/L2 draw a real arrowhead at the tip.
 const ARROW_KIND_CAPS = { L1: "arrow", L2: "arrow", L1_inertia: "arrow", L2_inertia: "arrow" };
 const ARROW_KIND_LABELS = {
-  L1: "L1 (bbox, main length)",
-  L2: "L2 (bbox, main width)",
-  L1_inertia: "L1 (inertia, main length)",
-  L2_inertia: "L2 (inertia, main width)",
+  L1: "L1 (bbox)",
+  L2: "L2 (bbox)",
+  L1_inertia: "L1 (inertia)",
+  L2_inertia: "L2 (inertia)",
 };
 const ARROW_KIND_ORDER = ["L1", "L2", "L1_inertia", "L2_inertia"];
 const BUILDING_FILL = "#4a5568";
@@ -87,6 +87,7 @@ const state = {
   selectedBuildingId: null,
   showcaseActive: false,
   arrowsData: null,
+  arrowKindActive: Object.fromEntries(ARROW_KIND_ORDER.map((k) => [k, true])),
 };
 
 const URL_PARAMS = new URLSearchParams(location.search);
@@ -261,8 +262,9 @@ function renderLayer() {
 
   const layers = [buildings];
   if (state.arrowsData) {
-    const solidFeatures = state.arrowsData.features.filter((f) => !ARROW_KIND_DASH[f.properties?.kind]);
-    const dashedFeatures = state.arrowsData.features.filter((f) => ARROW_KIND_DASH[f.properties?.kind]);
+    const activeFeatures = state.arrowsData.features.filter((f) => state.arrowKindActive[f.properties?.kind]);
+    const solidFeatures = activeFeatures.filter((f) => !ARROW_KIND_DASH[f.properties?.kind]);
+    const dashedFeatures = activeFeatures.filter((f) => ARROW_KIND_DASH[f.properties?.kind]);
     layers.push(
       // L1/L2: solid, thicker.
       new GeoJsonLayer({
@@ -339,12 +341,20 @@ function renderLegend() {
   list.className = "legend-list";
   for (const key of ARROW_KIND_ORDER) {
     const item = document.createElement("li");
+    item.className = "overlay-checkbox-row";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = state.arrowKindActive[key];
+    checkbox.addEventListener("change", () => {
+      state.arrowKindActive[key] = checkbox.checked;
+      renderLayer();
+    });
     const icon = document.createElement("span");
     icon.className = "legend-line";
     icon.innerHTML = legendIconSvg(key);
     const label = document.createElement("span");
     label.textContent = ARROW_KIND_LABELS[key];
-    item.append(icon, label);
+    item.append(checkbox, icon, label);
     list.appendChild(item);
   }
   container.appendChild(list);
