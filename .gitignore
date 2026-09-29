@@ -1,0 +1,3 @@
+# Python bytecode cache — no reason to ever track this.
+__pycache__/
+**/__pycache__/**

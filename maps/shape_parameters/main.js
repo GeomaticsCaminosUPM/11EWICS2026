@@ -40,19 +40,19 @@ function updateTitle(datasetId) {
 const NORM_INFO = {
   slenderness_bbox: { limit: 4.0, worseIsHigh: true, unit: "", criteria: "EC8: slenderness (bbox) ≤ 4.0" },
   slenderness_inertia: { limit: 4.0, worseIsHigh: true, unit: "", criteria: "EC8: slenderness (inertia) ≤ 4.0" },
-  GNDTII_beta1_mainShapeSlenderness: { limit: 0.4, worseIsHigh: false, unit: "", criteria: "GNDT-II β1 ≥ 0.8" },
-  GNDTII_beta2_setbackRatio: { limit: 0.3, worseIsHigh: true, unit: "", criteria: "GNDT-II β2 ≤ 0.1" },
-  GNDTII_beta4_eccentricityRatio: { limit: 0.4, worseIsHigh: true, unit: "", criteria: "GNDT-II β4 ≤ 0.2" },
-  GNDTII_beta6_setbackSlenderness: { limit: 0.25, worseIsHigh: false, unit: "", criteria: "GNDT-II β6 ≥ 0.5" },
+  GNDTII_beta1_mainShapeSlenderness: { limit: 0.4, worseIsHigh: false, unit: "", criteria: "GNDT-II β1 ≥ 0.4 (grade D fails)" },
+  GNDTII_beta2_setbackRatio: { limit: 0.3, worseIsHigh: true, unit: "", criteria: "GNDT-II β2 ≤ 0.3 (grade D fails)" },
+  GNDTII_beta4_eccentricityRatio: { limit: 0.4, worseIsHigh: true, unit: "", criteria: "GNDT-II β4 ≤ 0.4 (grade C fails)" },
+  GNDTII_beta6_setbackSlenderness: { limit: 0.25, worseIsHigh: false, unit: "", criteria: "GNDT-II β6 ≥ 0.25 (grade C fails)" },
   ASCE7_setbackRatio: { limit: 0.2, worseIsHigh: true, unit: "", criteria: "ASCE 7: setback ratio ≤ 0.20" },
   ASCE7_holeRatio: { limit: 0.25, worseIsHigh: true, unit: "", criteria: "ASCE 7: hole ratio ≤ 0.25" },
-  ASCE7_parallelityAngle: { limit: 10, worseIsHigh: true, unit: "°", criteria: "ASCE 7: angle ≤ 5°" },
+  ASCE7_parallelityAngle: { limit: 10, worseIsHigh: true, unit: "°", criteria: "ASCE 7: angle ≤ 10° (triangular fails)" },
   EC8_eccentricityRatio: { limit: 0.3, worseIsHigh: true, unit: "", criteria: "EC8: eccentricity ≤ 0.30" },
   EC8_radiusRatio: { limit: 1.0, worseIsHigh: true, unit: "", criteria: "EC8: radius ratio ≤ 1.00" },
   EC8_compactness: { limit: 0.95, worseIsHigh: false, unit: "", criteria: "EC8: compactness ≥ 0.95" },
   NTC23_setbackRatio: { limit: 0.4, worseIsHigh: true, unit: "", criteria: "NTC-23: setback ratio ≤ 0.40" },
   NTC23_holeRatio: { limit: 0.4, worseIsHigh: true, unit: "", criteria: "NTC-23: hole ratio ≤ 0.40" },
-  CSCR2010_eccentricityRatio: { limit: 0.25, worseIsHigh: true, unit: "", criteria: "CSCR-2010: eccentricity ≤ 0.05" },
+  CSCR2010_eccentricityRatio: { limit: 0.25, worseIsHigh: true, unit: "", criteria: "CSCR-2010: eccentricity ≤ 0.25 (high risk fails)" },
 };
 
 // Video-cycle order: shape index first (per the brief), then round-robin
