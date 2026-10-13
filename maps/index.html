@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SevillaConference – Interactive Maps</title>
+    <title>11EWICS 2026 – Interactive Maps</title>
     <style>
       :root {
         --bg: #eef1f3;
@@ -137,12 +137,13 @@
   </head>
   <body>
     <div class="page">
-      <h1>SevillaConference · Interactive Maps</h1>
+      <h1>11EWICS 2026 · Interactive Maps</h1>
       <p class="intro">
-        Every map cycles through all three pilot regions in video mode
-        (<code>Mata Redonda → Quisquella → Zona 1</code>, every 10s) unless
-        you open a city-pinned link below, which locks video mode to that
-        one city. All maps share the same underlying pilot-region data.
+        Interactive maps of the three study areas: Barrio Morenos, San José
+        (Costa Rica); Ensanche Quisqueya, Santo Domingo (Dominican Republic);
+        and Zone 1, Guatemala City (Guatemala). Each map cycles through the
+        three study areas every 10&nbsp;s; the links under each map open it
+        fixed on a single study area.
       </p>
 
       <section>
@@ -150,18 +151,18 @@
         <p class="desc">
           3-D map colored by the 15 seismic-code shape/plan-irregularity
           metrics and the shape index; video mode cycles the coloring
-          attribute every 10s, then moves to the next city.
+          attribute every 10s, then moves to the next study area.
         </p>
         <div class="modes">
           <div class="mode-card">
             <h3>Shape parameters</h3>
-            <p class="mode-desc">All three cities, cycling.</p>
+            <p class="mode-desc">All three study areas, cycling.</p>
             <a class="primary" href="shape_parameters/">Open map →</a>
             <div class="cities">
-              <span class="label">Pinned to one city</span>
-              <a href="shape_parameters/mataredonda/">Mata Redonda</a>
-              <a href="shape_parameters/quisquella/">Quisquella</a>
-              <a href="shape_parameters/zona1/">Zona 1</a>
+              <span class="label">Single study area</span>
+              <a href="shape_parameters/mataredonda/">Barrio Morenos, San José</a>
+              <a href="shape_parameters/quisquella/">Ensanche Quisqueya, Santo Domingo</a>
+              <a href="shape_parameters/zona1/">Zone 1, Guatemala City</a>
             </div>
           </div>
         </div>
@@ -179,10 +180,10 @@
             <p class="mode-desc">Extruded 3D view, inclined orbiting camera, never top-down.</p>
             <a class="primary" href="relative_position/3d/">Open map →</a>
             <div class="cities">
-              <span class="label">Pinned to one city</span>
-              <a href="relative_position/3d/mataredonda/">Mata Redonda</a>
-              <a href="relative_position/3d/quisquella/">Quisquella</a>
-              <a href="relative_position/3d/zona1/">Zona 1</a>
+              <span class="label">Single study area</span>
+              <a href="relative_position/3d/mataredonda/">Barrio Morenos, San José</a>
+              <a href="relative_position/3d/quisquella/">Ensanche Quisqueya, Santo Domingo</a>
+              <a href="relative_position/3d/zona1/">Zone 1, Guatemala City</a>
             </div>
           </div>
           <div class="mode-card">
@@ -190,10 +191,10 @@
             <p class="mode-desc">Flat 2D view, contact-force arrows on by default (resultant + per-wall).</p>
             <a class="primary" href="relative_position/arrows/">Open map →</a>
             <div class="cities">
-              <span class="label">Pinned to one city</span>
-              <a href="relative_position/arrows/mataredonda/">Mata Redonda</a>
-              <a href="relative_position/arrows/quisquella/">Quisquella</a>
-              <a href="relative_position/arrows/zona1/">Zona 1</a>
+              <span class="label">Single study area</span>
+              <a href="relative_position/arrows/mataredonda/">Barrio Morenos, San José</a>
+              <a href="relative_position/arrows/quisquella/">Ensanche Quisqueya, Santo Domingo</a>
+              <a href="relative_position/arrows/zona1/">Zone 1, Guatemala City</a>
             </div>
           </div>
         </div>
@@ -210,10 +211,10 @@
             <p class="mode-desc">Lengths measured from the minimum rotated bounding box.</p>
             <a class="primary" href="building_sizes/bbox/">Open map →</a>
             <div class="cities">
-              <span class="label">Pinned to one city</span>
-              <a href="building_sizes/bbox/mataredonda/">Mata Redonda</a>
-              <a href="building_sizes/bbox/quisquella/">Quisquella</a>
-              <a href="building_sizes/bbox/zona1/">Zona 1</a>
+              <span class="label">Single study area</span>
+              <a href="building_sizes/bbox/mataredonda/">Barrio Morenos, San José</a>
+              <a href="building_sizes/bbox/quisquella/">Ensanche Quisqueya, Santo Domingo</a>
+              <a href="building_sizes/bbox/zona1/">Zone 1, Guatemala City</a>
             </div>
           </div>
           <div class="mode-card">
@@ -221,10 +222,10 @@
             <p class="mode-desc">Same six lengths, measured along the principal axes of inertia instead.</p>
             <a class="primary" href="building_sizes/inertia/">Open map →</a>
             <div class="cities">
-              <span class="label">Pinned to one city</span>
-              <a href="building_sizes/inertia/mataredonda/">Mata Redonda</a>
-              <a href="building_sizes/inertia/quisquella/">Quisquella</a>
-              <a href="building_sizes/inertia/zona1/">Zona 1</a>
+              <span class="label">Single study area</span>
+              <a href="building_sizes/inertia/mataredonda/">Barrio Morenos, San José</a>
+              <a href="building_sizes/inertia/quisquella/">Ensanche Quisqueya, Santo Domingo</a>
+              <a href="building_sizes/inertia/zona1/">Zone 1, Guatemala City</a>
             </div>
           </div>
           <div class="mode-card">
@@ -232,20 +233,14 @@
             <p class="mode-desc">L1/L2 only: bounding box (red, solid) vs. inertia (blue, dotted) overlaid.</p>
             <a class="primary" href="building_sizes/comparison/">Open map →</a>
             <div class="cities">
-              <span class="label">Pinned to one city</span>
-              <a href="building_sizes/comparison/mataredonda/">Mata Redonda</a>
-              <a href="building_sizes/comparison/quisquella/">Quisquella</a>
-              <a href="building_sizes/comparison/zona1/">Zona 1</a>
+              <span class="label">Single study area</span>
+              <a href="building_sizes/comparison/mataredonda/">Barrio Morenos, San José</a>
+              <a href="building_sizes/comparison/quisquella/">Ensanche Quisqueya, Santo Domingo</a>
+              <a href="building_sizes/comparison/zona1/">Zone 1, Guatemala City</a>
             </div>
           </div>
         </div>
       </section>
-
-      <footer>
-        Served from <code>SevillaConference/maps/</code> — city slugs in
-        pinned URLs are <code>zona1</code>, <code>quisquella</code>,
-        <code>mataredonda</code> (no underscores).
-      </footer>
     </div>
   </body>
 </html>

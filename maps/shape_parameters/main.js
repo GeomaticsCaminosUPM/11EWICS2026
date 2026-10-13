@@ -13,9 +13,9 @@ const { GeoJsonLayer } = deck;
 const { MapboxOverlay } = deck;
 
 const DATASETS = {
-  mata_redonda: { label: "Mata Redonda", dir: "../../data/shape_parameters/mata_redonda" },
-  quisquella: { label: "Quisquella", dir: "../../data/shape_parameters/quisquella" },
-  zona_1: { label: "Zona 1", dir: "../../data/shape_parameters/zona_1" },
+  mata_redonda: { label: "Barrio Morenos, San José", dir: "../../data/shape_parameters/mata_redonda" },
+  quisquella: { label: "Ensanche Quisqueya, Santo Domingo", dir: "../../data/shape_parameters/quisquella" },
+  zona_1: { label: "Zone 1, Guatemala City", dir: "../../data/shape_parameters/zona_1" },
 };
 const DEFAULT_DATASET = "mata_redonda";
 const DATASET_CYCLE_MS = 10_000;
@@ -454,6 +454,10 @@ function renderNormChart() {
   const container = document.getElementById("norm-chart");
   const belowText = document.getElementById("norm-chart-caption");
   const card = document.getElementById("norm-chart-card");
+  // Show the shape-index breakdown only while the map is coloured by the
+  // shape index, so the panel always matches the attribute on the map.
+  const shapeIndexCard = document.getElementById("shape-index-chart-card");
+  if (shapeIndexCard) shapeIndexCard.classList.toggle("hidden", state.attribute.name !== "shape_index");
   if (state.attribute.name === "shape_index") {
     card.classList.add("hidden");
     container.innerHTML = "";
@@ -705,7 +709,7 @@ async function loadDataset(datasetId) {
 
 async function setDataset(datasetId, { fromShowcase = false } = {}) {
   await loadDataset(datasetId);
-  var __h1 = document.querySelector(".subtitle"); if (__h1) __h1.textContent = DATASETS[datasetId].label;
+  var __h1 = document.querySelector(".subtitle"); if (__h1) { const [__area, __city] = DATASETS[datasetId].label.split(", "); __h1.textContent = __area; if (__city) { const __c = document.createElement("span"); __c.className = "subtitle-city"; __c.textContent = __city; __h1.appendChild(__c); } }
   updateTitle(datasetId);
   datasetDropdown?.setValue(datasetId);
   const [[minX, minY], [maxX, maxY]] = computeBbox(state.data);
@@ -867,7 +871,7 @@ async function bootstrap() {
   attributeDropdown.setValue(state.attribute.name);
 
   await loadDataset(ACTIVE_DEFAULT_DATASET);
-  { const __h1 = document.querySelector(".subtitle"); if (__h1) __h1.textContent = DATASETS[ACTIVE_DEFAULT_DATASET].label; }
+  { const __h1 = document.querySelector(".subtitle"); if (__h1) { const [__area, __city] = DATASETS[ACTIVE_DEFAULT_DATASET].label.split(", "); __h1.textContent = __area; if (__city) { const __c = document.createElement("span"); __c.className = "subtitle-city"; __c.textContent = __city; __h1.appendChild(__c); } } }
   updateTitle(ACTIVE_DEFAULT_DATASET);
   datasetDropdown.setValue(ACTIVE_DEFAULT_DATASET);
   const [[minX, minY], [maxX, maxY]] = computeBbox(state.data);
