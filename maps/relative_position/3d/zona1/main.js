@@ -13,9 +13,9 @@ const { MapboxOverlay } = deck;
 const { PathStyleExtension } = deck;
 
 const DATASETS = {
-  mata_redonda: { label: "Mata Redonda", dir: "../../../../data/relative_position/mata_redonda" },
-  quisquella: { label: "Quisquella", dir: "../../../../data/relative_position/quisquella" },
-  zona_1: { label: "Zona 1", dir: "../../../../data/relative_position/zona_1" },
+  mata_redonda: { label: "Barrio Morenos, San José", dir: "../../../../data/relative_position/mata_redonda" },
+  quisquella: { label: "Ensanche Quisqueya, Santo Domingo", dir: "../../../../data/relative_position/quisquella" },
+  zona_1: { label: "Zone 1, Guatemala City", dir: "../../../../data/relative_position/zona_1" },
 };
 const DEFAULT_DATASET = "quisquella";
 const DATASET_CYCLE_MS = 10_000;
@@ -513,7 +513,7 @@ async function loadDataset(datasetId) {
 
 async function setDataset(datasetId, { fromShowcase = false } = {}) {
   await loadDataset(datasetId);
-  var __h1 = document.querySelector(".subtitle"); if (__h1) __h1.textContent = DATASETS[datasetId].label;
+  var __h1 = document.querySelector(".subtitle"); if (__h1) { const [__area, __city] = DATASETS[datasetId].label.split(", "); __h1.textContent = __area; if (__city) { const __c = document.createElement("span"); __c.className = "subtitle-city"; __c.textContent = __city; __h1.appendChild(__c); } }
   updateTitle(datasetId);
   datasetDropdown?.setValue(datasetId);
   const [[minX, minY], [maxX, maxY]] = computeBbox(state.data);
@@ -668,7 +668,7 @@ async function bootstrap() {
   );
 
   await loadDataset(ACTIVE_DEFAULT_DATASET);
-  { const __h1 = document.querySelector(".subtitle"); if (__h1) __h1.textContent = DATASETS[ACTIVE_DEFAULT_DATASET].label; }
+  { const __h1 = document.querySelector(".subtitle"); if (__h1) { const [__area, __city] = DATASETS[ACTIVE_DEFAULT_DATASET].label.split(", "); __h1.textContent = __area; if (__city) { const __c = document.createElement("span"); __c.className = "subtitle-city"; __c.textContent = __city; __h1.appendChild(__c); } } }
   updateTitle(ACTIVE_DEFAULT_DATASET);
   datasetDropdown.setValue(ACTIVE_DEFAULT_DATASET);
   const [[minX, minY], [maxX, maxY]] = computeBbox(state.data);

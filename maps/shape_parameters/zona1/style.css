@@ -151,6 +151,17 @@ body,
   color: var(--text);
 }
 
+.panel-title-row h1.subtitle {
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+.subtitle-city {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--muted);
+}
 .subtitle {
   margin: 0 0 18px;
   color: var(--muted);
@@ -673,6 +684,8 @@ body,
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  /* keep long study-area names clear of the collapse arrow */
+  padding-right: 30px;
 }
 
 .icon-toggle-small {
